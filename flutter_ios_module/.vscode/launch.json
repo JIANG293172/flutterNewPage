@@ -1,12 +1,12 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Flutter (iOS Simulator)",
             "type": "dart",
             "request": "launch",
             "program": "lib/main.dart", // Flutter 入口文件
-            "deviceId": "13CE82F4-3AE1-453B-94C6-EC3A9A231062" // 你的 iPhone 16 Pro 模拟器 ID
         }
     ]
 }
