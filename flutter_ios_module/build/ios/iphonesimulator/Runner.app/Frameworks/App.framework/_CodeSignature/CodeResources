@@ -4,10 +4,6 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>.DS_Store</key>
-		<data>
-		Ul/g+AsjfydzrkcGd2q+RCbsKE4=
-		</data>
 		<key>Info.plist</key>
 		<data>
 		T7ae0s1yqPVdrLK0y5gqABVb1PU=
@@ -34,11 +30,11 @@
 		</data>
 		<key>flutter_assets/isolate_snapshot_data</key>
 		<data>
-		Gw5pCUegAI47PPKX0Ieg9bggD6o=
+		zaznNbm6AxZs6irYHTVoeYokjPg=
 		</data>
 		<key>flutter_assets/kernel_blob.bin</key>
 		<data>
-		Dao3gfrwOKqZiNOVTrQyR154wFo=
+		fYx66UDrPun/IqImI4yU+gQA2Ic=
 		</data>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -98,14 +94,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			vUpyNtZ+JCuAxEIHWh+NkzTHUBZFNzXuxDbicEKzC/0=
+			sPd9OQpUtJOmYkamN7QTddHt8Mjp3/XL2hrknycoU0M=
 			</data>
 		</dict>
 		<key>flutter_assets/kernel_blob.bin</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			j3xjhf+QgWsZgV+nuZpl34twucJekoDNhaUhE3yBbUs=
+			nJh/6EGjHKmzd951V2cjT9ZHpcsVXrOulqp5YYh2/Is=
 			</data>
 		</dict>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>

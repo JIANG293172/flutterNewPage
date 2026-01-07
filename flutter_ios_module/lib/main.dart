@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
           primary: const Color(0xFF0066CC),
           secondary: const Color(0xFFF5A623), // 辅助色（橙色）
         ),
-        fontFamily: 'PingFang SC', // 适配中文显示
+        fontFamily: 'PingFang SC', // 适配中文显示（若项目未配置可注释）
         splashFactory: InkRipple.splashFactory, // 优化点击水波纹效果
       ),
       home: const ChanganCarControlHome(),
@@ -92,7 +92,6 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_isAirOn ? "空调已开启" : "空调已关闭"),
-          // 修复：使用 colorScheme.secondary 替代 secondaryColor
           backgroundColor: _isAirOn ? Theme.of(context).colorScheme.secondary : Colors.grey[700],
           duration: const Duration(seconds: 2),
         ),
@@ -135,6 +134,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(), // 弹性滚动
+        padding: const EdgeInsets.only(bottom: 16), // 底部额外留白
         child: Column(
           children: [
             // 车辆信息卡片
@@ -148,7 +148,6 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
             const SizedBox(height: 16),
             // 功能入口区
             _buildFunctionEntrance(),
-            const SizedBox(height: 20), // 底部留白
           ],
         ),
       ),
@@ -181,6 +180,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
         children: [
           // 车辆型号 + 车牌
           Row(
@@ -216,11 +216,11 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
             children: [
               // 电量图标 + 百分比
               Column(
+                mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
                 children: [
                   Stack(
                     alignment: Alignment.center,
                     children: [
-                      // 修复：使用 battery_alert 替代 battery_low
                       Icon(
                         _batteryPercent > 20 ? Icons.battery_full : Icons.battery_alert,
                         color: Colors.white,
@@ -248,6 +248,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
               // 剩余里程
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
                 children: [
                   const Text(
                     "剩余里程",
@@ -295,12 +296,12 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
     );
   }
 
-  // 常用控制区
+  // 常用控制区（彻底修复布局溢出）
   Widget _buildControlArea() {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // 减少内边距
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -314,6 +315,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
         children: [
           const Text(
             "常用控制",
@@ -323,109 +325,111 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
               color: Color(0xFF333333),
             ),
           ),
-          const SizedBox(height: 20),
-          // 控制按钮网格
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 4,
-            childAspectRatio: 1.2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 16,
-            children: [
-              // 锁车/解锁
-              _buildControlButton(
-                icon: _isLock ? Icons.lock : Icons.lock_open,
-                text: _isLock ? "解锁" : "上锁",
-                onPressed: _toggleLock,
-                isLoading: _isLoading,
-              ),
-              // 空调
-              _buildControlButton(
-                icon: _isAirOn ? Icons.ac_unit : Icons.ac_unit_outlined,
-                text: "空调",
-                onPressed: _toggleAirCondition,
-                // 修复：使用 colorScheme.secondary 替代 secondaryColor
-                color: _isAirOn ? Theme.of(context).colorScheme.secondary : null,
-                isLoading: _isLoading,
-              ),
-              // 寻车
-              _buildControlButton(
-                icon: Icons.location_searching,
-                text: "寻车",
-                onPressed: () {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("寻车模式已开启，车辆鸣笛+双闪"),
-                        backgroundColor: Colors.orange,
-                      ),
-                    );
-                  }
-                },
-              ),
-              // 后备箱
-              _buildControlButton(
-                icon: Icons.storage,
-                text: "后备箱",
-                onPressed: () {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("后备箱已开启")),
-                    );
-                  }
-                },
-              ),
-              // 车窗
-              _buildControlButton(
-                icon: Icons.window,
-                text: "车窗",
-                onPressed: () {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("车窗控制功能待开通")),
-                    );
-                  }
-                },
-              ),
-              // 天窗
-              _buildControlButton(
-                icon: Icons.sunny,
-                text: "天窗",
-                onPressed: () {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("天窗控制功能待开通")),
-                    );
-                  }
-                },
-              ),
-              // 充电/加油（适配不同车型）
-              _buildControlButton(
-                icon: _batteryPercent > 0 ? Icons.ev_station : Icons.local_gas_station,
-                text: _batteryPercent > 0 ? "充电" : "加油",
-                onPressed: _simulateBatteryConsumption,
-              ),
-              // 更多控制
-              _buildControlButton(
-                icon: Icons.more_horiz,
-                text: "更多",
-                onPressed: () {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("更多控制功能即将上线")),
-                    );
-                  }
-                },
-              ),
-            ],
+          const SizedBox(height: 12), // 进一步缩小间距
+          // 控制按钮网格（固定高度+适配尺寸）
+          SizedBox(
+            height: 140, // 固定高度，防止溢出
+            child: GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 4,
+              childAspectRatio: 1.1, // 调整宽高比
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8, // 进一步减少间距
+              children: [
+                // 锁车/解锁
+                _buildControlButton(
+                  icon: _isLock ? Icons.lock : Icons.lock_open,
+                  text: _isLock ? "解锁" : "上锁",
+                  onPressed: _toggleLock,
+                  isLoading: _isLoading,
+                ),
+                // 空调
+                _buildControlButton(
+                  icon: _isAirOn ? Icons.ac_unit : Icons.ac_unit_outlined,
+                  text: "空调",
+                  onPressed: _toggleAirCondition,
+                  color: _isAirOn ? Theme.of(context).colorScheme.secondary : null,
+                  isLoading: _isLoading,
+                ),
+                // 寻车
+                _buildControlButton(
+                  icon: Icons.location_searching,
+                  text: "寻车",
+                  onPressed: () {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("寻车模式已开启，车辆鸣笛+双闪"),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                    }
+                  },
+                ),
+                // 后备箱
+                _buildControlButton(
+                  icon: Icons.storage,
+                  text: "后备箱",
+                  onPressed: () {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("后备箱已开启")),
+                      );
+                    }
+                  },
+                ),
+                // 车窗
+                _buildControlButton(
+                  icon: Icons.window,
+                  text: "车窗",
+                  onPressed: () {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("车窗控制功能待开通")),
+                      );
+                    }
+                  },
+                ),
+                // 天窗
+                _buildControlButton(
+                  icon: Icons.sunny,
+                  text: "天窗",
+                  onPressed: () {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("天窗控制功能待开通")),
+                      );
+                    }
+                  },
+                ),
+                // 充电/加油（适配不同车型）
+                _buildControlButton(
+                  icon: _batteryPercent > 0 ? Icons.ev_station : Icons.local_gas_station,
+                  text: _batteryPercent > 0 ? "充电" : "加油",
+                  onPressed: _simulateBatteryConsumption,
+                ),
+                // 更多控制
+                _buildControlButton(
+                  icon: Icons.more_horiz,
+                  text: "更多",
+                  onPressed: () {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("更多控制功能即将上线")),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  // 单个控制按钮（优化点击反馈和加载状态）
+  // 单个控制按钮（优化尺寸）
   Widget _buildControlButton({
     required IconData icon,
     required String text,
@@ -437,16 +441,17 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       onTap: onPressed,
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 4), // 减少内边距
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
           children: [
             Stack(
               alignment: Alignment.center,
               children: [
                 Icon(
                   icon,
-                  size: 28,
+                  size: 26, // 稍微缩小图标
                   color: color ?? const Color(0xFF666666),
                 ),
                 if (isLoading)
@@ -460,13 +465,15 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
                   ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6), // 减少文字间距
             Text(
               text,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11, // 稍微缩小文字
                 color: color ?? const Color(0xFF666666),
               ),
+              maxLines: 1, // 确保文字不换行
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -479,7 +486,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // 减少内边距
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -493,6 +500,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
         children: [
           const Text(
             "车辆数据",
@@ -502,7 +510,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
               color: Color(0xFF333333),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16), // 减少间距
           // 数据卡片行
           Row(
             children: [
@@ -514,7 +522,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
                   icon: Icons.route,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12), // 减少间距
               // 平均油耗/电耗
               Expanded(
                 child: _buildDataCard(
@@ -525,7 +533,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12), // 减少间距
           Row(
             children: [
               // 累计里程
@@ -533,11 +541,10 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
                 child: _buildDataCard(
                   title: "累计里程",
                   value: "12580 km",
-                  // 修复：使用 speed 替代 odometer（Icons.speed 存在）
                   icon: Icons.speed,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12), // 减少间距
               // 驾驶时长
               Expanded(
                 child: _buildDataCard(
@@ -560,7 +567,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
     required IconData icon,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12), // 减少内边距
       decoration: BoxDecoration(
         color: const Color(0xFFF8F9FA),
         borderRadius: BorderRadius.circular(8),
@@ -568,28 +575,31 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
         children: [
           Icon(
             icon,
-            size: 20,
+            size: 18, // 稍微缩小图标
             color: Theme.of(context).primaryColor,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6), // 减少间距
           Text(
             title,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 11, // 稍微缩小文字
               color: Color(0xFF999999),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2), // 减少间距
           Text(
             value,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 14, // 稍微缩小文字
               fontWeight: FontWeight.bold,
               color: Color(0xFF333333),
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -601,7 +611,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // 减少内边距
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -615,6 +625,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
         children: [
           const Text(
             "功能服务",
@@ -624,32 +635,35 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
               color: Color(0xFF333333),
             ),
           ),
-          const SizedBox(height: 20),
-          // 功能入口网格
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 4,
-            childAspectRatio: 1.1,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 16,
-            children: [
-              _buildFunctionItem(Icons.car_repair, "维保预约"),
-              _buildFunctionItem(Icons.local_parking, "停车服务"),
-              _buildFunctionItem(Icons.card_giftcard, "优惠券"),
-              _buildFunctionItem(Icons.help_center, "客服中心"),
-              _buildFunctionItem(Icons.settings, "车辆设置"),
-              _buildFunctionItem(Icons.document_scanner, "电子手册"),
-              _buildFunctionItem(Icons.shop, "精品商城"),
-              _buildFunctionItem(Icons.history, "行程记录"),
-            ],
+          const SizedBox(height: 12), // 减少间距
+          // 功能入口网格（固定高度）
+          SizedBox(
+            height: 130, // 固定高度，防止溢出
+            child: GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 4,
+              childAspectRatio: 1.0, // 调整宽高比
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8, // 减少间距
+              children: [
+                _buildFunctionItem(Icons.car_repair, "维保预约"),
+                _buildFunctionItem(Icons.local_parking, "停车服务"),
+                _buildFunctionItem(Icons.card_giftcard, "优惠券"),
+                _buildFunctionItem(Icons.help_center, "客服中心"),
+                _buildFunctionItem(Icons.settings, "车辆设置"),
+                _buildFunctionItem(Icons.document_scanner, "电子手册"),
+                _buildFunctionItem(Icons.shop, "精品商城"),
+                _buildFunctionItem(Icons.history, "行程记录"),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  // 功能入口项（优化点击反馈）
+  // 功能入口项（优化尺寸）
   Widget _buildFunctionItem(IconData icon, String text) {
     return InkWell(
       onTap: () {
@@ -661,22 +675,25 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 4), // 减少内边距
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
           children: [
             Icon(
               icon,
-              size: 24,
+              size: 22, // 稍微缩小图标
               color: const Color(0xFF666666),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6), // 减少间距
             Text(
               text,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 11, // 稍微缩小文字
                 color: Color(0xFF666666),
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
