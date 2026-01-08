@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'AutoHomePageHeader.dart';
+import 'AutoHomePageStateView.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -137,8 +140,17 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
         padding: const EdgeInsets.only(bottom: 16), // 底部额外留白
         child: Column(
           children: [
+            const AutoHomePageHeader(initTitle: "长安汽车车控首页"),
+            const SizedBox(height: 16),
             // 车辆信息卡片
-            _buildCarInfoCard(),
+            AutoHomePageStateView (
+              licensePlate: _licensePlate,
+              carModel: _carModel,
+              batteryPercent: 85,
+              mileage: 1258,
+              isLock: _isLock,
+              isLoading: _isLoading,
+            ),
             const SizedBox(height: 16),
             // 常用控制区
             _buildControlArea(),
@@ -156,145 +168,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
     );
   }
 
-  // 车辆信息卡片
-  Widget _buildCarInfoCard() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.circular(12),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0066CC), Color(0xFF0088EE)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
-        children: [
-          // 车辆型号 + 车牌
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _carModel,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white12,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  _licensePlate,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          // 电量/油量 + 剩余里程
-          Row(
-            children: [
-              // 电量图标 + 百分比
-              Column(
-                mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(
-                        _batteryPercent > 20 ? Icons.battery_full : Icons.battery_alert,
-                        color: Colors.white,
-                        size: 40,
-                      ),
-                      if (_isLoading)
-                        const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "$_batteryPercent%",
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 24),
-              // 剩余里程
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min, // 关键：最小化Column高度
-                children: [
-                  const Text(
-                    "剩余里程",
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "$_mileage km",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              // 车辆状态标签
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _isLock ? Icons.lock : Icons.lock_open,
-                      color: Colors.white,
-                      size: 12,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _isLock ? "车辆已上锁" : "车辆未上锁",
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  
 
   // 常用控制区（彻底修复布局溢出）
   Widget _buildControlArea() {
