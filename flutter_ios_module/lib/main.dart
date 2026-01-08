@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'AutoHomePageHeader.dart';
 import 'AutoHomePageStateView.dart';
+import 'AutoTopHomePageHeader.dart';
 
 
 void main() {
@@ -13,10 +14,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '长安汽车车控首页',
+      title: '车控首页',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0066CC), // 长安汽车品牌主色（深蓝）
+          seedColor: const Color(0xFF0066CC), // 品牌主色（深蓝）
           primary: const Color(0xFF0066CC),
           secondary: const Color(0xFFF5A623), // 辅助色（橙色）
         ),
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// 长安汽车车控首页主页面
+// 车控首页主页面
 class ChanganCarControlHome extends StatefulWidget {
   const ChanganCarControlHome({super.key});
 
@@ -140,8 +141,9 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
         padding: const EdgeInsets.only(bottom: 16), // 底部额外留白
         child: Column(
           children: [
-            const AutoHomePageHeader(initTitle: "长安汽车车控首页"),
+            const AutoHomePageHeader(initTitle: "车控首页"),
             const SizedBox(height: 16),
+            AutoTopHomePageHeader(),
             // 车辆信息卡片
             AutoHomePageStateView (
               licensePlate: _licensePlate,
