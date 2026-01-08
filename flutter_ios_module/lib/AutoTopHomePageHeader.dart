@@ -43,6 +43,8 @@ class _AutoTopHomePageHeaderState extends State<AutoTopHomePageHeader> {
             _build1ColumLayout(),
             const SizedBox(height: 8),
             _buildStackLayout(),
+            const SizedBox(height: 20),
+            _buildExpandedLayout(),
           ],
         ),
       ),
@@ -209,7 +211,41 @@ class _AutoTopHomePageHeaderState extends State<AutoTopHomePageHeader> {
   //   );
   // }
 
-  //   // 4. Expanded - 弹性布局（Row/Column 中占剩余空间）
+
+
+// 弹性布局示例（修复核心问题：现在能获取到水平宽度约束）
+  Widget _buildExpandedLayout() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "四、Expanded 弹性布局",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        const SizedBox(height: 8),
+        // 外层增加宽度约束（可选：确保Row占满父容器宽度）
+        SizedBox(
+          width: MediaQuery.of(context).size.width - 32, // 减去左右padding各16
+          child: Row(
+            children: [
+              Container(width: 80, height: 80, color: Colors.red[300]),
+              Expanded(
+                flex: 1,
+                child: Container(height: 80, color: Colors.green[300]),
+              ),
+              Expanded(
+                flex: 2,
+                child: Container(height: 80, color: Colors.blue[300]),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  //  // 4. Expanded - 弹性布局（Row/Column 中占剩余空间）
   //   Widget _buildExpandedLayout() {
   //     return Column(
   //       crossAxisAlignment: CrossAxisAlignment.start,
