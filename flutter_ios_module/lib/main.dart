@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'AutoHomePageHeader.dart';
 import 'AutoHomePageStateView.dart';
 import 'AutoTopHomePageHeader.dart';
-
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,14 +46,40 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
   int _mileage = 1258; // 剩余里程(km)
   bool _isLock = true; // 车辆是否上锁
   bool _isAirOn = false; // 空调是否开启
+  final MethodChannel _channel = const MethodChannel(
+    "com.changan.carcontrol/channel",
+  );
 
   // 加载状态控制
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _listeniOSCall();
+  }
+
+  void _listeniOSCall() {
+    _channel.setMethodCallHandler((MethodCall call) async {
+      switch (call.method) {
+        case "updateBattery":
+          final int newBattery = call.arguments['battery'] as int;
+          debugPrint("$newBattery");
+          return "Flutter电量更新成功：$newBattery%"; // 返回给iOS的结果
+
+        default:
+          throw PlatformException(
+            code: "METHOD_NOT_FOUND",
+            message: "未实现方法：${call.method}",
+          );
+      }
+    });
+  }
+
   // 控制操作 - 车辆上锁/解锁（添加加载状态）
   Future<void> _toggleLock() async {
     if (_isLoading) return; // 防止重复点击
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -66,11 +92,14 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       _isLoading = false;
     });
 
-    if (mounted) { // 防止页面销毁后调用context
+    if (mounted) {
+      // 防止页面销毁后调用context
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_isLock ? "车辆已上锁" : "车辆已解锁"),
-          backgroundColor: _isLock ? Colors.green : Theme.of(context).primaryColor,
+          backgroundColor: _isLock
+              ? Colors.green
+              : Theme.of(context).primaryColor,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -80,7 +109,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
   // 控制操作 - 空调开关（添加加载状态）
   Future<void> _toggleAirCondition() async {
     if (_isLoading) return;
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -96,7 +125,9 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_isAirOn ? "空调已开启" : "空调已关闭"),
-          backgroundColor: _isAirOn ? Theme.of(context).colorScheme.secondary : Colors.grey[700],
+          backgroundColor: _isAirOn
+              ? Theme.of(context).colorScheme.secondary
+              : Colors.grey[700],
           duration: const Duration(seconds: 2),
         ),
       );
@@ -106,7 +137,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
   // 模拟电量减少（演示用）
   Future<void> _simulateBatteryConsumption() async {
     if (_batteryPercent <= 0) return;
-    
+
     setState(() {
       _batteryPercent -= 5;
       _mileage = (_mileage * (1 - 0.05)).round(); // 里程随电量减少
@@ -127,9 +158,9 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
             onPressed: () {
               // 通知入口点击事件
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("暂无新通知")),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text("暂无新通知")));
               }
             },
             tooltip: "通知",
@@ -145,7 +176,7 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
             const SizedBox(height: 16),
             AutoTopHomePageHeader(),
             // 车辆信息卡片
-            AutoHomePageStateView (
+            AutoHomePageStateView(
               licensePlate: _licensePlate,
               carModel: _carModel,
               batteryPercent: 85,
@@ -170,14 +201,15 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
     );
   }
 
-  
-
   // 常用控制区（彻底修复布局溢出）
   Widget _buildControlArea() {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // 减少内边距
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 16,
+      ), // 减少内边距
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -225,7 +257,9 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
                   icon: _isAirOn ? Icons.ac_unit : Icons.ac_unit_outlined,
                   text: "空调",
                   onPressed: _toggleAirCondition,
-                  color: _isAirOn ? Theme.of(context).colorScheme.secondary : null,
+                  color: _isAirOn
+                      ? Theme.of(context).colorScheme.secondary
+                      : null,
                   isLoading: _isLoading,
                 ),
                 // 寻车
@@ -249,9 +283,9 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
                   text: "后备箱",
                   onPressed: () {
                     if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("后备箱已开启")),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text("后备箱已开启")));
                     }
                   },
                 ),
@@ -281,7 +315,9 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
                 ),
                 // 充电/加油（适配不同车型）
                 _buildControlButton(
-                  icon: _batteryPercent > 0 ? Icons.ev_station : Icons.local_gas_station,
+                  icon: _batteryPercent > 0
+                      ? Icons.ev_station
+                      : Icons.local_gas_station,
                   text: _batteryPercent > 0 ? "充电" : "加油",
                   onPressed: _simulateBatteryConsumption,
                 ),
@@ -362,7 +398,10 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // 减少内边距
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 16,
+      ), // 减少内边距
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -487,7 +526,10 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // 减少内边距
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 16,
+      ), // 减少内边距
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -544,9 +586,9 @@ class _ChanganCarControlHomeState extends State<ChanganCarControlHome> {
     return InkWell(
       onTap: () {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("$text 功能待开通")),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("$text 功能待开通")));
         }
       },
       borderRadius: BorderRadius.circular(8),
